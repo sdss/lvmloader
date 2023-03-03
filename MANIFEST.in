@@ -1,0 +1,2 @@
+recursive-include python/lvmloader/etc *
+recursive-include cextern/**/*
