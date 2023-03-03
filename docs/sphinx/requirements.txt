@@ -1,1 +1,5 @@
 sphinx_bootstrap_theme~=0.4.12
+
+furo>=2021.6.18b36
+sphinx-copybutton>=0.3.3
+sphinx-inline-tabs>=2021.3.28b7
