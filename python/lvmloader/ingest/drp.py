@@ -146,7 +146,6 @@ class LVMLoader:
 
         return pipe
 
-
     def get_obsinfo(self, hdu):
         rss = self.load_rss()
 
