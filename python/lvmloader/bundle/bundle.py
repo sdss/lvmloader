@@ -105,8 +105,7 @@ class BaseBundle(object):
             base_path = u'https://raw.githubusercontent.com/sdss/lvmcore/master'
 
         self.simbmap_file = os.path.join(base_path, rel_path)
-        hdrrow = 0 if self.survey == 'manga' else 21
-        return pd.read_table(self.simbmap_file, sep=',', header=hdrrow)
+        return pd.read_table(self.simbmap_file, sep=',', header=21)
 
     def get_fiber_coordinates(self, size: int = None):
         """ Returns the RA, Dec coordinates for each fiber.
