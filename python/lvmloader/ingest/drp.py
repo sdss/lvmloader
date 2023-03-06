@@ -15,7 +15,7 @@ import numpy as np
 from sqlalchemy import select, insert
 
 from sdssdb.sqlalchemy.lvmdb import database, drp
-from bundle import Bundle
+from lvmloader.bundle import MangaBundle, LVMBundle
 
 class Timer:
 
@@ -47,6 +47,7 @@ class LVMLoader:
         self.release = release
         self.session = database.Session()
         self.verbose = verbose
+        self.manga = manga
 
 
     def __repr__(self):
@@ -92,7 +93,10 @@ class LVMLoader:
         self.ring = 7 if str(hdu[0].header['IFUDSGN']).startswith('127') else 6
 
     def get_footprint(self):
-        b = Bundle(ra=self.ra, dec=self.dec, ring=self.ring)
+        if self.manga:
+            b = MangaBundle(ra=self.ra, dec=self.dec, ring=self.ring)
+        else:
+            b = LVMBundle(ra=self.ra, dec=self.dec, ring=self.ring)
         return b.hexagon.to_table().as_array().tolist()
 
     def load_rss(self):
