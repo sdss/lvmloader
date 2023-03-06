@@ -128,7 +128,7 @@ class BaseBundle(object):
 
         return fibers
 
-    def _calculate_hexagon(self, use_envelope: bool = True, rotated: bool = True):
+    def _calculate_hexagon(self, use_envelope: bool = True):
         """ Calculates the vertices of the bundle hexagon. """
 
         simbmap = self.simbmap[:self.size].copy()
@@ -181,21 +181,36 @@ class BaseBundle(object):
 
             hexagonOff += hexagonExtra
 
+        self._hexagon_offsets = hexagonOff
         r, d = zip(*hexagonOff)
         return self.coord.spherical_offsets_by(r*u.arcsec, d*u.arcsec)
 
-    def _rotate(self, angle: int = 90):
-        data = self.simbmap[['raoff', 'decoff']].copy()
+    def _rotate_data(self, data, angle):
         angle_rad = angle * np.pi / 180
-        rot = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],[-np.sin(angle_rad), np.cos(angle_rad)]])
-        rotated = np.dot(data, rot)
-        r, d = zip(*rotated)
-        self.simbmap.raoff = r
-        self.simbmap.decoff = d
-        self.angle += angle
-        self.hexagon = self._calculate_hexagon()
+
+        x = data[:, 0]
+        y = data[:, 1]
+
+        newx = x * np.cos(angle_rad) + y * np.sin(angle_rad)
+        newy = y * np.cos(angle_rad) - x * np.sin(angle_rad)
+
+        return newx, newy
+
+    def rotate_bundle(self, angle: int = 90):
+
+        # rotate the fiber data
+        data = self.simbmap[['raoff', 'decoff']].copy()
+        xx, yy = self._rotate_data(data.to_numpy(), angle)
+        self.simbmap.raoff = xx #r
+        self.simbmap.decoff = yy #d
+
+        # rotate the hex offsets and recreate the sky hexagon
+        hexx, hexy = self._rotate_data(self._hexagon_offsets, angle)
+        self._hexagon_offsets = np.array(list(zip(hexx, hexy)))
+        self.hexagon = self.coord.spherical_offsets_by(hexx*u.arcsec,hexy*u.arcsec)
         self.sky_region = PolygonSkyRegion(vertices=self.hexagon)
 
+        self.angle += angle
 
     def plot(self, hdu: fits.ImageHDU = None, wcs: WCS = None, nx: int = 100,
              scale: float = None, sunit: str = 'arcsec', degaxis: bool = True,
@@ -263,7 +278,6 @@ class MangaBundle(BaseBundle):
     survey = 'manga'
     pixel_scale = 2.5
     angle = 0.0
-    rotated = False
     nfiber = 127
     simfile = 'manga_simbmap_127.dat'
 
@@ -271,7 +285,6 @@ class LVMBundle(BaseBundle):
     survey = 'lvm'
     pixel_scale = 35.3
     angle = -90.0
-    rotated = True
     nfiber = 1801
     simfile = 'lvm_simbmap_1801.dat'
 
