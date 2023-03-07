@@ -240,7 +240,7 @@ class LVMLoader:
 
 
 # files = list(pathlib.Path('/Users/Brian/Work/Manga/redux/v3_1_1/').rglob("*[9,11]*/*/*RSS*"))
-def load_lvm_files(files):
+def load_lvm_files(files, manga=None):
     for file in files:
-        ll = LVMLoader(file, verbose=True)
+        ll = LVMLoader(file, verbose=True, manga=manga)
         ll.load_into_db()
