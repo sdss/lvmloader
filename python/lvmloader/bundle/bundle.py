@@ -2,16 +2,18 @@
 # -*- coding: utf-8 -*-
 #
 import os
+
+import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-import astropy.units as u
-from astropy.io import fits
-from astropy.wcs import WCS
 from astropy.coordinates import SkyCoord
+from astropy.io import fits
 from astropy.visualization.wcsaxes import SphericalCircle
+from astropy.wcs import WCS
 from regions import PolygonSkyRegion
+
 
 __all__ = ['MangaBundle', 'LVMBundle']
 

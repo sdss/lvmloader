@@ -2,20 +2,19 @@
 # -*- coding: utf-8 -*-
 #
 
-import pathlib
 import itertools
+import pathlib
 import time
 
+import astropy.units as u
+import numpy as np
+from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.table import Table
-from astropy.coordinates import SkyCoord
-import astropy.units as u
-
-import numpy as np
-from sqlalchemy import select, insert
-
 from sdssdb.sqlalchemy.lvmdb import database, drp
-from lvmloader.bundle import MangaBundle, LVMBundle
+from sqlalchemy import insert, select
+
+from lvmloader.bundle import LVMBundle, MangaBundle
 
 
 class Timer:

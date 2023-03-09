@@ -1,1 +1,1 @@
-from .bundle import MangaBundle, LVMBundle  # noqa: F401
+from .bundle import LVMBundle, MangaBundle  # noqa: F401
