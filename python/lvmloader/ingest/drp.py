@@ -131,7 +131,7 @@ class LVMLoader:
     def load_header(self, hdu):
 
         rss = self.load_rss()
-        if self.session.scalars(select(drp.Header).where(drp.Header.rss==rss)).first():
+        if self.session.scalars(select(drp.Header).where(drp.Header.rss == rss)).first():
             return
         data = self.get_header(hdu)
         self.session.execute(insert(drp.Header), data)

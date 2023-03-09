@@ -13,6 +13,8 @@ from astropy.coordinates import SkyCoord
 from astropy.visualization.wcsaxes import SphericalCircle
 from regions import PolygonSkyRegion
 
+__all__ = ['MangaBundle', 'LVMBundle']
+
 
 class BaseBundle(object):
     """The location, size, and shape of a LVM IFU bundle.
