@@ -7,7 +7,6 @@ import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.visualization.wcsaxes import SphericalCircle
