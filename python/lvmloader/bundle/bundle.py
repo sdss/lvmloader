@@ -38,7 +38,8 @@ class BaseBundle(object):
         fibers (SkyCoord):
             A SkyCoord array of IFU fiber coordinates
         skies (SkyCoord):
-            An Nx2 array of sky fiber coordinates.  Default is unloaded.  Use :meth:`get_sky_coordinates` to load.
+            An Nx2 array of sky fiber coordinates.  Default is unloaded.
+            Use :meth:`get_sky_coordinates` to load.
         hexagon (SkyCoord):
             A SkyCoord array of coordinates defining the hexagon vertices
         sky_region (PolygonSkyRegion):
@@ -119,7 +120,7 @@ class BaseBundle(object):
         """
 
         fibers = self.coord.spherical_offsets_by(
-            self.simbmap['raoff']*u.arcsec, self.simbmap['decoff']*u.arcsec)
+            self.simbmap['raoff'] * u.arcsec, self.simbmap['decoff'] * u.arcsec)
 
         # extract only the fibers for the specified IFU size
         size = size or self.size
@@ -141,7 +142,7 @@ class BaseBundle(object):
         bottopRow = simbmap[simbmap[row].round(2).min() - simbmap[row].round(2) == 0]
 
         if len(topRow) < max(self.rings) or len(bottopRow) < max(self.rings):
-            print('Warning, did not select all fibers in top/bottom row' )
+            print('Warning, did not select all fibers in top/bottom row')
 
         # identify hexagon vertices
         vertice0 = middleRow[middleRow[col] == np.max(middleRow[col])]
@@ -175,14 +176,15 @@ class BaseBundle(object):
 
             if self.angle != 0:
                 angle_rad = self.angle * np.pi / 180
-                rot = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],[-np.sin(angle_rad), np.cos(angle_rad)]])
+                rot = np.array([[np.cos(angle_rad), -np.sin(angle_rad)],
+                                [-np.sin(angle_rad), np.cos(angle_rad)]])
                 hexagonExtra = np.dot(hexagonExtra, rot)
 
             hexagonOff += hexagonExtra
 
         self._hexagon_offsets = hexagonOff
         r, d = zip(*hexagonOff)
-        return self.coord.spherical_offsets_by(r*u.arcsec, d*u.arcsec)
+        return self.coord.spherical_offsets_by(r * u.arcsec, d * u.arcsec)
 
     def _rotate_data(self, data, angle):
         angle_rad = angle * np.pi / 180
@@ -200,13 +202,13 @@ class BaseBundle(object):
         # rotate the fiber data
         data = self.simbmap[['raoff', 'decoff']].copy()
         xx, yy = self._rotate_data(data.to_numpy(), angle)
-        self.simbmap.raoff = xx #r
-        self.simbmap.decoff = yy #d
+        self.simbmap.raoff = xx  # r
+        self.simbmap.decoff = yy  # d
 
         # rotate the hex offsets and recreate the sky hexagon
         hexx, hexy = self._rotate_data(self._hexagon_offsets, angle)
         self._hexagon_offsets = np.array(list(zip(hexx, hexy)))
-        self.hexagon = self.coord.spherical_offsets_by(hexx*u.arcsec,hexy*u.arcsec)
+        self.hexagon = self.coord.spherical_offsets_by(hexx * u.arcsec, hexy * u.arcsec)
         self.sky_region = PolygonSkyRegion(vertices=self.hexagon)
 
         self.angle += angle
@@ -225,8 +227,10 @@ class BaseBundle(object):
             ny = nx
             hdu = fits.ImageHDU(np.ones([nx, ny]))
             wcs_dict = {
-                'CTYPE1': 'RA---TAN', 'CUNIT1': 'deg', 'CD1_1': -2.77778e-4*scale, 'CRPIX1': nx//2 + 1, 'CRVAL1': self.ra, 'NAXIS1': nx,
-                'CTYPE2': 'DEC--TAN', 'CUNIT2': 'deg', 'CD2_2': 2.77778e-4*scale, 'CRPIX2': ny//2 + 1, 'CRVAL2': self.dec, 'NAXIS2': ny}
+                'CTYPE1': 'RA---TAN', 'CUNIT1': 'deg', 'CD1_1': -2.77778e-4 * scale,
+                'CRPIX1': nx // 2 + 1, 'CRVAL1': self.ra, 'NAXIS1': nx,
+                'CTYPE2': 'DEC--TAN', 'CUNIT2': 'deg', 'CD2_2': 2.77778e-4 * scale,
+                'CRPIX2': ny // 2 + 1, 'CRVAL2': self.dec, 'NAXIS2': ny}
             wcs = WCS(wcs_dict)
 
         plt.clf()
@@ -247,8 +251,10 @@ class BaseBundle(object):
         # plot fibers
         if overlay_fibers:
             for fiber in self.simbmap[['raoff', 'decoff']][:self.size].iterrows():
-                fiber_coord = self.coord.spherical_offsets_by(fiber[1]['raoff']*u.arcsec, fiber[1]['decoff']*u.arcsec)
-                p = SphericalCircle((fiber_coord.ra, fiber_coord.dec), scale / 2 * getattr(u, sunit),
+                fiber_coord = self.coord.spherical_offsets_by(fiber[1]['raoff'] * u.arcsec,
+                                                              fiber[1]['decoff'] * u.arcsec)
+                p = SphericalCircle((fiber_coord.ra, fiber_coord.dec),
+                                    scale / 2 * getattr(u, sunit),
                                     edgecolor='green', facecolor='none',
                                     transform=ax.get_transform('fk5'))
                 ax.add_patch(p)
@@ -273,12 +279,14 @@ class BaseBundle(object):
         ascii.write(tt, format='fixed_width_two_line',
                     formats={'ra': '{0:.12f}', 'dec': '{0:.12f}'})
 
+
 class MangaBundle(BaseBundle):
     survey = 'manga'
     pixel_scale = 2.5
     angle = 0.0
     nfiber = 127
     simfile = 'manga_simbmap_127.dat'
+
 
 class LVMBundle(BaseBundle):
     survey = 'lvm'
@@ -288,8 +296,7 @@ class LVMBundle(BaseBundle):
     simfile = 'lvm_simbmap_1801.dat'
 
 
-
-def plot_bundles(feet: list, ax = None, ra=None, dec=None, nx=100):
+def plot_bundles(feet: list, ax=None, ra=None, dec=None, nx=100):
     """ plot a series of hex footprints or regions on a blank wcs """
 
     n = len(feet)
@@ -304,4 +311,3 @@ def plot_bundles(feet: list, ax = None, ra=None, dec=None, nx=100):
         reg = PolygonSkyRegion(vertices=SkyCoord(foot, unit=u.degree))
         pp = reg.to_pixel(ax.wcs)
         pp.plot(ax=ax, edgecolor=next(color))
-

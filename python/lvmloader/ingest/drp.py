@@ -17,6 +17,7 @@ from sqlalchemy import select, insert
 from sdssdb.sqlalchemy.lvmdb import database, drp
 from lvmloader.bundle import MangaBundle, LVMBundle
 
+
 class Timer:
 
     def __init__(self, message: str = '', verbose: bool = None):
@@ -48,7 +49,6 @@ class LVMLoader:
         self.session = database.Session()
         self.verbose = verbose
         self.manga = manga
-
 
     def __repr__(self):
         return f'<LVMLoader(file="{self.filename}")'
@@ -136,7 +136,6 @@ class LVMLoader:
         data = self.get_header(hdu)
         self.session.execute(insert(drp.Header), data)
 
-
     def load_pipeline(self, label: str = 'DRP'):
 
         version = self.drpver if label == 'DRP' else self.dapver if label == 'DAP' else None
@@ -160,7 +159,7 @@ class LVMLoader:
         df = tt[cols].to_pandas()
         df.columns = df.columns.str.lower()
 
-        dmap = {'C':0, 'N':1, 'E': 2, 'S':3}
+        dmap = {'C': 0, 'N': 1, 'E': 2, 'S': 3}
         df['mgdpos'] = df['mgdpos'].apply(lambda x: dmap[x.strip()])
         df['expnum'] = df['expnum'].astype(int)
         df.insert(0, 'rss_pk', rss.pk)
@@ -169,13 +168,13 @@ class LVMLoader:
         #         'dra', 'ddec', 'airmass', 'seeing', 'bluesn2', 'redsn2'
         #         'nirsn2', 'drp2qual']
 
-        df = df.rename(columns={'mgdpos': 'dpos', 'mgdra':'dra', 'mgddec':'ddec'})
+        df = df.rename(columns={'mgdpos': 'dpos', 'mgdra': 'dra', 'mgddec': 'ddec'})
 
         return df.to_dict(orient='records')
 
     def load_obsinfo(self, hdu):
         rss = self.load_rss()
-        if self.session.scalars(select(drp.ObsInfo).where(drp.ObsInfo.rss==rss)).first():
+        if self.session.scalars(select(drp.ObsInfo).where(drp.ObsInfo.rss == rss)).first():
             return
         data = self.get_obsinfo(hdu)
         self.session.execute(insert(drp.ObsInfo), data)
@@ -212,7 +211,7 @@ class LVMLoader:
         ypos = yp[:, wrange].ravel().tolist()
 
         # get wave_pk
-        wp = self.session.scalars(select(drp.Wavelength).where(drp.Wavelength.index==widx)).one()
+        wp = self.session.scalars(select(drp.Wavelength).where(drp.Wavelength.index == widx)).one()
         wave_pk = np.tile(wp.pk, nrows).tolist()
 
         # get ra/dec
@@ -229,7 +228,7 @@ class LVMLoader:
     def load_fibers(self, hdu):
 
         rss = self.load_rss()
-        if self.session.scalars(select(drp.RSSFiber).where(drp.RSSFiber.rss==rss)).first():
+        if self.session.scalars(select(drp.RSSFiber).where(drp.RSSFiber.rss == rss)).first():
             return
 
         data = self.get_fiber_data(hdu)
